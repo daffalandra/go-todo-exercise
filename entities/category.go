@@ -1,10 +1,15 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Category struct {
-	Id        uint
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uint           `gorm:"primaryKey"`
+	Name      string         `gorm:"type:varchar(255);not null"`
+	CreatedAt time.Time      `gorm:"not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }

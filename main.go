@@ -1,27 +1,32 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/daffalandra/go-todo-exercise/config"
-	"github.com/daffalandra/go-todo-exercise/cotrollers/homecontroller"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/daffalandra/go-todo-exercise/controllers/categorycontroller"
+	"github.com/daffalandra/go-todo-exercise/controllers/homecontroller"
 )
 
 func main() {
-	config.LoadEnv()
-	fmt.Println("📦 DB URL:", config.GetDatabaseURL())
-
-	dsn := config.GetDSN()
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("Failed to connect to DB: " + err.Error())
+	// Load environment variables
+	if err := config.LoadEnv(); err != nil {
+		log.Fatalf("Failed to load environment variables: %v", err)
 	}
 
-	fmt.Println("✅ Connected to PostgreSQL", db)
+	// Initialize database connection
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to DB: %v", err)
+	}
+	defer func() {
+		if err := config.CloseDB(db); err != nil {
+			log.Printf("Failed to close DB: %v", err)
+		}
+	}()
+
+	log.Println("✅ Connected to PostgreSQL")
 
 	// Home Page
 	http.HandleFunc("/", homecontroller.Welcome)
@@ -33,5 +38,7 @@ func main() {
 	http.HandleFunc("/categories/delete", categorycontroller.Delete)
 
 	log.Println("Server Running on Port 8080")
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
