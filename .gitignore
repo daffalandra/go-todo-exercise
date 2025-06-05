@@ -1,0 +1,16 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.env
+
+# Vendor & module cache (if vendored)
+vendor/
+
+# IDE/editor files
+.vscode/
+.idea/
